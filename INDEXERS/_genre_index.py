@@ -101,7 +101,7 @@ def append_to_genre_collection(
     # Collection check -- fail if missing
     client = QdrantClient("http://localhost:6333")
     if not collection_exists(client, collection_name_):
-        raise ValueError(f"ERROR: {collection_name_} already does not exist. Use create function instead!")
+        raise ValueError(f"ERROR: {collection_name_} does not exist. Use create function instead!")
     
     # append
     vector_store = QdrantVectorStore.from_existing_collection(
@@ -116,8 +116,13 @@ def append_to_genre_collection(
 
 
 #create_genre_collection(Path("ROMANCE_examples_00.txt"), "romance_examples")
-append_to_genre_collection(Path("ROMANCE_examples_01.txt"), "romance_examples")
+#append_to_genre_collection(Path("ROMANCE_examples_01.txt"), "romance_examples")
 
+#create_genre_collection(Path("MYSTERY_examples_00.txt"), "mystery_examples")
+#append_to_genre_collection(Path("MYSTERY_examples_03.txt"), "mystery_examples")
+#create_genre_collection(Path("HORROR_examples_00.txt"), "horror_examples")
+
+#append_to_genre_collection(Path("HORROR_examples_06.txt"), "horror_examples")
 
 # RETRIEVAL USAGE PATTERN
 # embedding_model: OpenAIEmbeddings = OpenAIEmbeddings(
