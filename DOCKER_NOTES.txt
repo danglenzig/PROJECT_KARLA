@@ -1,0 +1,14 @@
+- Qdrant vector_db on localhost:6333
+- ValKey (redis) on localhost:6379
+
+# docker_compose.yml...
+
+services:
+  valkey:
+    image: valkey/valkey
+    ports:
+      - 6379:6379
+  vector-db:
+    image: qdrant/qdrant
+    ports:
+      - 6333:6333
