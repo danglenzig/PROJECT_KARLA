@@ -101,7 +101,7 @@ def append_to_genre_collection(
     # Collection check -- fail if missing
     client = QdrantClient("http://localhost:6333")
     if not collection_exists(client, collection_name_):
-        raise ValueError(f"ERROR: {collection_name_} already does not exist. Use create function instead!")
+        raise ValueError(f"ERROR: {collection_name_} does not exist. Use create function instead!")
     
     # append
     vector_store = QdrantVectorStore.from_existing_collection(
@@ -113,10 +113,12 @@ def append_to_genre_collection(
 
     print(f"Added {file_path} to {collection_name_}: {len(new_chunks)} new chunks")
 
-
-
+#create_genre_collection(Path("ROMANCE_howto_00.txt"), "romance_howto")
+#append_to_genre_collection(Path("ROMANCE_howto_01.txt"), "romance_howto")
 #create_genre_collection(Path("ROMANCE_examples_00.txt"), "romance_examples")
-append_to_genre_collection(Path("ROMANCE_examples_01.txt"), "romance_examples")
+#append_to_genre_collection(Path("ROMANCE_examples_01.txt"), "romance_examples")
+#append_to_genre_collection(Path("ROMANCE_examples_SOG.pdf"), "romance_examples")
+
 
 
 # RETRIEVAL USAGE PATTERN
