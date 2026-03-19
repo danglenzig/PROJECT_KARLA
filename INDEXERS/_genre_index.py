@@ -113,16 +113,13 @@ def append_to_genre_collection(
 
     print(f"Added {file_path} to {collection_name_}: {len(new_chunks)} new chunks")
 
-
-
+#create_genre_collection(Path("ROMANCE_howto_00.txt"), "romance_howto")
+#append_to_genre_collection(Path("ROMANCE_howto_01.txt"), "romance_howto")
 #create_genre_collection(Path("ROMANCE_examples_00.txt"), "romance_examples")
 #append_to_genre_collection(Path("ROMANCE_examples_01.txt"), "romance_examples")
+#append_to_genre_collection(Path("ROMANCE_examples_SOG.pdf"), "romance_examples")
 
-#create_genre_collection(Path("MYSTERY_examples_00.txt"), "mystery_examples")
-#append_to_genre_collection(Path("MYSTERY_examples_03.txt"), "mystery_examples")
-#create_genre_collection(Path("HORROR_examples_00.txt"), "horror_examples")
 
-#append_to_genre_collection(Path("HORROR_examples_06.txt"), "horror_examples")
 
 # RETRIEVAL USAGE PATTERN
 # embedding_model: OpenAIEmbeddings = OpenAIEmbeddings(
