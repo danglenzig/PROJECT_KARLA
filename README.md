@@ -24,14 +24,14 @@ The heart of the project, where high-level concepts are expanded into game-ready
 * **Staging Agent (The Compiler):** Acts as the final creative gatekeeper. It maps generated assets to dialogue blocks and ensures all file paths and IDs align with the project's technical requirements.
 
 ### 3. Build Layer (Automation)
-**Status: In Progress**
+*Status: In Progress*
 
 Creates a playable Ren'Py game from the **Staging Manifest**
 * **Skeletal Initialization:** A PowerShell-based automation tool that scaffolds a linted, project-ready Ren’Py directory.
 * **Script Injection:** A Python/PowerShell processor that takes the **Staging Manifest** and injects the logic into `.rpy` files while moving assets into the correct game directories.
 
 ### 4. Runtime Layer
-**Status: InProgress**
+*Status: InProgress*
 
 * **Ren’Py:** The open-source Ren'Py engine itself. The final executable environment where the generated assets and scripts are executed.
 
