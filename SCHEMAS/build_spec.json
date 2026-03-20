@@ -1,0 +1,60 @@
+{
+  "project_metadata": {
+    "game_name": "AI_Generated_Skeleton",
+    "characters": [
+      {
+        "id": "p",
+        "name": "Player",
+        "color": "#c8ffc8",
+        "sprite_prefix": "protag"
+      },
+      {
+        "id": "c1",
+        "name": "Librarian",
+        "color": "#fe62a1",
+        "sprite_prefix": "librarian"
+      }
+    ]
+  },
+  "assets": {
+    "backgrounds": [
+      { "id": "bg_train", "file": "bg_train_platform.png" },
+      { "id": "bg_office", "file": "bg_detective_office.png" }
+    ],
+    "sprites": [
+      { "character_id": "c1", "pose": "neutral", "file": "librarian_neutral.png" },
+      { "character_id": "c1", "pose": "surprised", "file": "librarian_shock.png" }
+    ]
+  },
+  "script_data": [
+    {
+      "act": 1,
+      "scenes": [
+        {
+          "scene_id": "s1",
+          "background": "bg_train",
+          "blocks": [
+            {
+              "type": "narration",
+              "text": "The rain drummed against the station roof as the 5:02 pulled in."
+            },
+            {
+              "type": "dialogue",
+              "character_id": "c1",
+              "pose": "neutral",
+              "text": "Excuse me, is this seat taken?"
+            },
+            {
+              "type": "choice",
+              "text": "How do you respond?",
+              "options": [
+                { "label": "Yes, I'm waiting for someone.", "target_label": "s1_choice_a" },
+                { "label": "Not at all, please sit.", "target_label": "s1_choice_b" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
