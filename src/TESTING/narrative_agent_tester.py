@@ -1,4 +1,4 @@
-
+# PROJECT_KARLA/src/TESTING/narrative_agent_tester.py
 """
 Narrative Agent v2.0 - Production-Ready Visual Novel Story Planner
 Transforms user prompts into validated StoryPlan JSON via structured reasoning.
@@ -23,13 +23,25 @@ from langchain_qdrant import QdrantVectorStore
 from langchain_openai import OpenAIEmbeddings
 from qdrant_client import QdrantClient
 
-PROJECT_ROOT = Path(__file__).parent.parent  # TESTING -> PROJECT_KARLA
-UTILITY_PATH = PROJECT_ROOT / "UTILITY_FUNCTIONS"
+
+# PROJECT_KARLA/src/
+SRC_ROOT = Path(__file__).parent.parent  # src/TESTING -> src
+
+# PROJECT_KARLA/src/utility_functions/
+UTILITY_PATH = SRC_ROOT / "utility_functions" 
 sys.path.insert(0, str(UTILITY_PATH))
 
-from utility_functions import foo, timer, load_schema, safe_json_parse
+# PROJECT_KARLA/src/qdrant_tools/
+QDRANT_PATH = SRC_ROOT / "qdrant_tools"
+sys.path.insert(0, str(QDRANT_PATH))
 
-print(foo())
+from utility_functions import timer, load_schema, safe_json_parse, foo, validate_story_plan
+from qdrant_tools import qdrant_foo
+
+#print(foo()) # should print "bar"
+#print(qdrant_foo()) # --> "qdrant_bar"
+
+
 
 
 
@@ -95,7 +107,7 @@ class Config:
     max_tokens: int = 4000
 
 
-    schemas_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent / "SCHEMAS") # relative lovation of the SCHEMAS folder
+    schemas_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent.parent / "SCHEMAS") # relative lovation of the SCHEMAS folder
 
     # QDRANT COLLECTIONS
     howto_collections: Dict[str, str] = field(init=False)
@@ -134,7 +146,7 @@ class Config:
         """Production check: Ensure all paths exist."""
         paths = [
             self.schema_path,
-            self.project_root / "TESTING"
+            #self.project_root / "TESTING"
         ]
         for path in paths:
             if not path.exists():
@@ -143,95 +155,6 @@ class Config:
 CONFIG = Config()
 CONFIG.validate_paths()
 logger.info(f"CONFIG LOADED: {CONFIG.schema_path}")
-
-# ===========================================================
-# UTILITY FUNCTIONS
-# ===========================================================
-
-
-
-# @contextmanager
-# def timer(description: str):
-#     """Context manager for performance monitoring."""
-#     start = time.time()
-#     yield
-#     elapsed = time.time() - start
-#     logger.info(f"{description}: {elapsed:.2f}s")
-
-# def load_schema(schema_path: Path) -> str:
-#     """Load and format JSON schema for LLM context using path in CONFIG."""
-#     if not schema_path.exists():
-#         raise FileNotFoundError(f"Schema missing: {schema_path}")
-#     with open(schema_path, 'r') as f:  # ✅ Uses parameter
-#         return json.dumps(json.load(f), indent=2)
-    
-# def safe_json_parse(raw: str) -> Dict[str, Any]:
-#     """Recover from LLM JSON errors."""
-#     raw = raw.strip()
-    
-#     # UNESCAPE newlines first (CRITICAL)
-#     raw = raw.replace('\\n', '\n').replace('\\t', '\t').replace('\\"', '"')
-    
-#     if not raw.startswith('{'):
-#         raise ValueError("Not a JSON object")
-    
-#     # Now find real boundaries on unescaped string
-#     start = raw.find('{')
-#     end = raw.rfind('}')
-    
-#     if start == -1 or end == -1 or end < start:
-#         raise ValueError("Not a JSON object")
-    
-#     # Slice valid JSON
-#     json_str = raw[start:end+1]
-    
-#     # Fix common bugs
-#     fixes = [
-#         (r',\s*([}\]])', r'\1'),  
-#         (r'([{\[])\s*,', r'\1'),  
-#         (r':\s*,', ': null'),
-#     ]
-    
-#     for pattern, replacement in fixes:
-#         json_str = re.sub(pattern, replacement, json_str, flags=re.DOTALL)
-    
-#     return json.loads(json_str)
-
-def validate_story_plan(raw_json: str) -> StoryPlan:
-
-    try:
-        data = safe_json_parse(raw_json)
-    except Exception as e:
-        logger.error(f"Raw sample: {repr(raw_json[:300])}...")
-        # Emergency fallback
-        data = {
-            "title": "Untitled Horror VN",
-            "genre": "horror", 
-            "tone": "unknown",
-            "themes": [],
-            "logline": "Generated story plan",
-            "protagonist": {"name": "Player"},
-            "other_characters": [],
-            "setting": "Unknown",
-            "structure": [],
-            "constraints": []
-        }
-    
-    # Safe field extraction
-    model_data = {
-        "title": data.get("title", "Untitled"),
-        "genre": data.get("genre", "horror"),
-        "tone": data.get("tone", "unknown"), 
-        "themes": data.get("themes", []),
-        "logline": data.get("logline", ""),
-        "protagonist": data.get("protagonist", {"name": "Player"}),
-        "other_characters": data.get("other_characters", []),
-        "setting": data.get("setting", "Unknown"),
-        "structure": data.get("structure", []),
-        "constraints": data.get("constraints", [])
-    }
-
-    return StoryPlan(**model_data)
 
 
 # # =============================================================================
@@ -474,9 +397,14 @@ You operate as a small state machine using the following STEP types:
 
     def _handle_output(self, step: ReasoningStep) -> StoryPlan:
         """Final validation"""
-        plan = validate_story_plan(step.content)
+        model_data = validate_story_plan(step.content)
+        plan = StoryPlan(**model_data)
         logger.info("StoryPlan validated")
         return plan
+
+        # plan = validate_story_plan(step.content)
+        # logger.info("StoryPlan validated")
+        # return plan
     
 def main():
     print("🎭 Narrative Agent v2.1 - Enter prompts below:")

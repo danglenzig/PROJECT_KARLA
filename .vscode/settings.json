@@ -1,0 +1,10 @@
+{
+    // intelisense for custom modules
+    "python.analysis.extraPaths": [
+        "./src/utility_functions",
+        "./src/qdrant_tools"
+    ],
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingImports": "none"
+    }
+}

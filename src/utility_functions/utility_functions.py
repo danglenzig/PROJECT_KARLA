@@ -1,3 +1,5 @@
+# PROJECT_KARLA/src/utility_functions/utility_functions.py
+
 """
 Utility functions for Project Karla Narrative Pipeline.
 Performance monitoring, JSON schema loading, and LLM output validation.
@@ -68,47 +70,45 @@ def safe_json_parse(raw: str) -> Dict[str, Any]:
     
     return json.loads(json_str)
 
-# def validate_story_plan(raw_json: str):
-#     """
-#     Parse raw LLM JSON into validated StoryPlan dataclass.
+def foo():
+    return("\n\nbar\n\n")
+
+def validate_story_plan(raw_json: str) -> Dict:
+
+    try:
+        data = safe_json_parse(raw_json)
+    except Exception as e:
+        logger.error(f"Raw sample: {repr(raw_json[:300])}...")
+        # Emergency fallback
+        data = {
+            "title": "Untitled Horror VN",
+            "genre": "horror", 
+            "tone": "unknown",
+            "themes": [],
+            "logline": "Generated story plan",
+            "protagonist": {"name": "Player"},
+            "other_characters": [],
+            "setting": "Unknown",
+            "structure": [],
+            "constraints": []
+        }
     
-#     Note: StoryPlan dataclass must be imported by caller.
-#     """
-#     try:
-#         data = safe_json_parse(raw_json)
-#     except Exception as e:
-#         logger.error(f"JSON parse failed: {e}")
-#         logger.error(f"Raw sample: {repr(raw_json[:300])}...")
-#         # Emergency fallback
-#         data = {
-#             "title": "Untitled Horror VN",
-#             "genre": "horror", 
-#             "tone": "unknown",
-#             "themes": [],
-#             "logline": "Generated story plan",
-#             "protagonist": {"name": "Player"},
-#             "other_characters": [],
-#             "setting": "Unknown",
-#             "structure": [],
-#             "constraints": []
-#         }
-    
-#     # Safe field extraction
-#     model_data = {
-#         "title": data.get("title", "Untitled"),
-#         "genre": data.get("genre", "horror"),
-#         "tone": data.get("tone", "unknown"), 
-#         "themes": data.get("themes", []),
-#         "logline": data.get("logline", ""),
-#         "protagonist": data.get("protagonist", {"name": "Player"}),
-#         "other_characters": data.get("other_characters", []),
-#         "setting": data.get("setting", "Unknown"),
-#         "structure": data.get("structure", []),
-#         "constraints": data.get("constraints", [])
-#     }
+    # Safe field extraction
+    model_data = {
+        "title": data.get("title", "Untitled"),
+        "genre": data.get("genre", "horror"),
+        "tone": data.get("tone", "unknown"), 
+        "themes": data.get("themes", []),
+        "logline": data.get("logline", ""),
+        "protagonist": data.get("protagonist", {"name": "Player"}),
+        "other_characters": data.get("other_characters", []),
+        "setting": data.get("setting", "Unknown"),
+        "structure": data.get("structure", []),
+        "constraints": data.get("constraints", [])
+    }
+    return model_data
+
+    #return StoryPlan(**model_data)
 
 #     # Caller must provide/import StoryPlan and do: StoryPlan(**model_data)
 #     return model_data
-
-def foo():
-    return("\n\nbar\n\n")
