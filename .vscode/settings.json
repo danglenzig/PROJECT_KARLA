@@ -2,7 +2,8 @@
     // intelisense for custom modules
     "python.analysis.extraPaths": [
         "./src/utility_functions",
-        "./src/qdrant_tools"
+        "./src/qdrant_tools",
+        "./src/prompt_builder"
     ],
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingImports": "none"

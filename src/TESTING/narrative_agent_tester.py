@@ -34,11 +34,17 @@ sys.path.insert(0, str(UTILITY_PATH))
 QDRANT_PATH = SRC_ROOT / "qdrant_tools"
 sys.path.insert(0, str(QDRANT_PATH))
 
+# PROJECT_KARLA/src/prompt/builder
+PROMPT_BLDR_PATH = SRC_ROOT / "prompt_builder"
+sys.path.insert(0, str(PROMPT_BLDR_PATH))
+
 from utility_functions import timer, load_schema, foo, validate_story_plan
 from qdrant_tools import qdrant_foo, search_genre_examples, search_genre_howto
+from prompt_builder import prompt_builder_foo, build_system_prompt
 
 print(foo()) # should print "bar"
 print(qdrant_foo()) # --> "qdrant_bar"
+print(prompt_builder_foo()) # --> "prompt_builder_bar"
 
 # configure logging first -- production best practice
 logging.basicConfig(
@@ -101,31 +107,7 @@ class Config:
     max_iterations: int = 20
     max_tokens: int = 4000
 
-
     schemas_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent.parent / "SCHEMAS") # relative lovation of the SCHEMAS folder
-
-    # QDRANT COLLECTIONS
-    howto_collections: Dict[str, str] = field(init=False)
-    examples_collections: Dict[str, str] = field(init=False)
-
-    def __post_init__(self):
-        """Runtime initialization for computed properties."""
-        object.__setattr__(
-            self,
-            "howto_collections", {
-                "horror": "horror_howto",
-                "mystery": "mystery_howto",
-                "romance": "romance_howto"
-            }
-        )
-        object.__setattr__(
-            self,
-            "examples_collections", {
-                "horror": "horror_examples",
-                "mystery": "mystery_examples",
-                "romance": "romance_examples"
-            }
-        )
 
     @property
     def schema_path(self) -> Path:
@@ -169,102 +151,10 @@ class NarrativeAgent:
         self.messages_: List[Dict[str, str]] = []
         self.iteration = 0
         self.messages_.append(
-            {"role": "system", "content": self._build_system_prompt()}
+            {"role": "system", "content": build_system_prompt("narrative_agent")}
         )
 
-    def _build_system_prompt(self) -> str:
-        return f"""You are an expert narrative design AI assistant helping design short visual novel stories.
-
-You operate as a small state machine using the following STEP types:
-- START
-- CONTEXTUALIZE
-- PLAN
-- TOOL
-- OBSERVE
-- OUTPUT
-
-## ReasoningStep Schema Example
-{{
-  "step": "TOOL",
-  "content": null,
-  "tool": "search_genre_howto", 
-  "tool_input": '{{"genre_name": "romance", "search_query": "slow-burn"}}',
-  "tool_output": null
-}}
-
-### High-level behavior
-
-1. START
-   - Restate the user input in your own words in `content`.
-   - Do NOT call tools in this step.
-
-2. CONTEXTUALIZE
-   - Briefly explain what kind of visual novel story is being requested.
-   - Identify the **primary genre**. It MUST be one of:
-     - "romance"
-     - "mystery"
-     - "horror"
-   - Put the chosen genre name as a lowercase string into `content`, e.g. "romance".
-   - Do NOT call tools in this step.
-
-3. PLAN
-   - Describe, in `content`, what you intend to do next (e.g. "Call howto + examples tools to gather genre context, then draft a Story Plan").
-   - A PLAN step MAY request a TOOL call, or may just refine the plan.
-   - If you intend to call a tool, emit a TOOL step in the NEXT turn, not in the same one.
-
-4. TOOL
-   - Use only the following tools:
-
-     - search_genre_howto(genre_name: str, search_query: str)
-     - search_genre_examples(genre_name: str, search_query: str)
-
-   - `tool` MUST be exactly "search_genre_howto" or "search_genre_examples".
-   - `tool_input` MUST be a JSON string of the form:
-     - {{"genre_name": "romance" | "mystery" | "horror", "search_query": "<short natural language query>"}}
-
-     Example:
-     {{"genre_name": "romance", "search_query": "first kiss scene structure"}}
-
-   - In a TOOL step:
-     - `content` MUST be null.
-     - `tool_output` MUST be null (the caller will fill it later).
-     - `tool_input` MUST be a single JSON object string. Never use multiple braces, never use sets, arrays, or other formats.
-
-5. OBSERVE
-   - The caller will execute the tool and pass the raw text result back to you.
-   - In an OBSERVE step:
-     - Copy the tool name into `tool`.
-     - Copy the same JSON string you used in `tool_input`.
-     - Put the raw tool result into `tool_output`.
-     - In `content`, briefly summarize what you learned from the tool output for the current story.
-
-6. OUTPUT
-   - This is the final result that will be sent to the schematizer.
-   - In the OUTPUT step, `content` MUST be a JSON string describing a **Story Plan** the schematizer can work from.
-
-   The Story Plan JSON MUST have the shape of the following OUTPUT schema (all keys required)
-
-   OUTPUT Schema:
-   {self.schema}
-
-   - The OUTPUT step must NOT call tools.
-   - Do not include any explanatory text outside this JSON in the OUTPUT `content`.
-   - The schematizer will take this JSON and expand it into a full VN spec.
-
-### General rules
-
-- Always consult both the howto and examples tools before drafting your story plan.
-- Always emit syntactically valid JSON for the ReasoningStep wrapper.
-- Never mix multiple steps in one response.
-- Never invent genre names outside: "romance", "mystery", "horror".
-- Use tools for genre writing advice or stylistic examples.
-- Use a three-act story structure.
-- Each MUST consist of at least 2, and at most 4 scenes.
-- Indicate which character is the main point-of-view character of the story. This will be the player character of the visual novel.
-- Include detailed visual descriptions of all characters -- face, body, and clothing. These details will be used later as image generation prompts by another agent.
-- Include detailed visual descriptions of all scene environments -- location, colors, lighting, etc. These details will be used later as image generation prompts by another agent.
-- Include samples of narration, dialogue and/or monologue for each scene. These samples will be used later as example prompts for a dialogue generation agent.
-"""
+    
     def process_user_input(self, prompt: str) -> StoryPlan:
         """Prompt -> Narrative Spec"""
         self.messages_.append(
@@ -339,10 +229,6 @@ You operate as a small state machine using the following STEP types:
         plan = StoryPlan(**model_data)
         logger.info("StoryPlan validated")
         return plan
-
-        # plan = validate_story_plan(step.content)
-        # logger.info("StoryPlan validated")
-        # return plan
     
 def main():
     print("🎭 Narrative Agent v2.1 - Enter prompts below:")
