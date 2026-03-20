@@ -10,10 +10,12 @@ Project Karla is divided into four primary layers to ensure a modular and scalab
 
 ### 1. Discovery Layer (Frontend)
 *Status: Backlog*
+
 A browser-based interface designed to guide the user through initial creative choices (genre, tone, etc.), setting the "seed" for the generation process.
 
 ### 2. Creative Layer (Agent Orchestration)
 *Status: In Progress*
+
 The heart of the project, where high-level concepts are expanded into game-ready content through specialized agents:
 
 * **Narrative Agent (The Director):** Processes user input into a structured 3-act story. It outputs a high-level JSON outline defining the plot, characters, and scene summaries.
@@ -23,12 +25,14 @@ The heart of the project, where high-level concepts are expanded into game-ready
 
 ### 3. Build Layer (Automation)
 **Status: In Progress**
+
 Creates a playable Ren'Py game from the **Staging Manifest**
 * **Skeletal Initialization:** A PowerShell-based automation tool that scaffolds a linted, project-ready Ren’Py directory.
 * **Script Injection:** A Python/PowerShell processor that takes the **Staging Manifest** and injects the logic into `.rpy` files while moving assets into the correct game directories.
 
 ### 4. Runtime Layer
 **Status: InProgress**
+
 * **Ren’Py:** The open-source Ren'Py engine itself. The final executable environment where the generated assets and scripts are executed.
 
 ---
