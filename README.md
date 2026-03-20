@@ -39,8 +39,10 @@ The following table outlines the flow of data through the system:
 
 | Phase | Agent / Component | Responsibility | Input $\rightarrow$ Output |
 | :--- | :--- | :--- | :--- |
+| **Discovery** | **Discovery Agent** | Gathers user rquirements and input | User $\rightarrow$ Natural-language prompt |
 | **Creative** | **Narrative Agent** | Generates the 3-act structural JSON. | NL Input $\rightarrow$ High-level JSON |
 | **Creative** | **Dialogue Agent** | Expands summaries into full dialogue blocks. | High-level JSON $\rightarrow$ Script Fragments |
 | **Creative** | **Visual Agent** | Generates BGs and Sprites from descriptions. | High-level JSON $\rightarrow$ PNG Assets |
 | **Creative** | **Staging Agent** | Maps assets to dialogue; validates file paths. | All above $\rightarrow$ Standardized Manifest |
 | **Build** | **PowerShell/Python** | Injects manifest into `.rpy`; organizes files. | Manifest $\rightarrow$ Functional .exe |
+| **Runtime** | **Ren'Py** | Presents the finished game to the user | `.rpy` & supporting RP files $\rightarrow$ Playable game |
