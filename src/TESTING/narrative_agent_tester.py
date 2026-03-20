@@ -18,7 +18,6 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field, ValidationError
 from enum import Enum
 from openai import OpenAI
-from contextlib import contextmanager
 from langchain_qdrant import QdrantVectorStore
 from langchain_openai import OpenAIEmbeddings
 from qdrant_client import QdrantClient
@@ -35,15 +34,11 @@ sys.path.insert(0, str(UTILITY_PATH))
 QDRANT_PATH = SRC_ROOT / "qdrant_tools"
 sys.path.insert(0, str(QDRANT_PATH))
 
-from utility_functions import timer, load_schema, safe_json_parse, foo, validate_story_plan
-from qdrant_tools import qdrant_foo
+from utility_functions import timer, load_schema, foo, validate_story_plan
+from qdrant_tools import qdrant_foo, search_genre_examples, search_genre_howto
 
-#print(foo()) # should print "bar"
-#print(qdrant_foo()) # --> "qdrant_bar"
-
-
-
-
+print(foo()) # should print "bar"
+print(qdrant_foo()) # --> "qdrant_bar"
 
 # configure logging first -- production best practice
 logging.basicConfig(
@@ -155,63 +150,6 @@ class Config:
 CONFIG = Config()
 CONFIG.validate_paths()
 logger.info(f"CONFIG LOADED: {CONFIG.schema_path}")
-
-
-# # =============================================================================
-# # QDRANT TOOLS
-# # =============================================================================
-
-qdrant_url = CONFIG.qdrant_url
-qdrant_client = QdrantClient(qdrant_url)
-embedding_model = OpenAIEmbeddings(model="text-embedding-3-large")
-
-def collection_exists(client: QdrantClient, collection_name: str) -> bool:
-    try:
-        client.get_collection(collection_name)
-        return True
-    except:
-        return False
-    
-def get_genre_howto_db(genre_name: str):
-
-    howto_name = CONFIG.howto_collections[genre_name]
-    
-    if not collection_exists(qdrant_client, howto_name):
-        raise ValueError(f"ERROR: Can't find howto for genre: {genre_name}")
-    
-    return QdrantVectorStore.from_existing_collection(
-        url=qdrant_url,
-        collection_name=howto_name,
-        embedding=embedding_model
-    )
-
-def get_genre_examples_db(genre_name: str):
-
-    examples_name = CONFIG.examples_collections[genre_name]
-
-    if not collection_exists(qdrant_client, examples_name):
-        raise ValueError(f"ERROR: Can't find examples for genre: {genre_name}")
-    
-    return QdrantVectorStore.from_existing_collection(
-        url=qdrant_url,
-        collection_name=examples_name,
-        embedding=embedding_model
-    )
-
-def search_genre_howto(genre_name: str, search_query: str):
-    howto_db = get_genre_howto_db(genre_name)
-    search_result = howto_db.similarity_search(query=search_query)
-    return "\n\n\n".join(
-        [ f"Context chunk {i+1}:\n{doc.page_content}"  for i, doc in enumerate(search_result)]
-    )
-
-
-def search_genre_examples(genre_name: str, search_query: str):
-    examples_db = get_genre_examples_db(genre_name)
-    search_result = examples_db.similarity_search(query=search_query)
-    return "\n\n\n".join(
-        [ f"Context chunk {i+1}:\n{doc.page_content}"  for i, doc in enumerate(search_result)]
-    )
 
 TOOLS = {
     "search_genre_howto": search_genre_howto,
