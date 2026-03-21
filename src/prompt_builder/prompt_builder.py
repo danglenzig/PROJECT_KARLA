@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict
 import sys
 
+
 # PROJECT_KARLA/src/
 SRC_ROOT = Path(__file__).parent.parent  # src/TESTING -> src
 
@@ -13,6 +14,7 @@ UTILITY_PATH = SRC_ROOT / "utility_functions"
 sys.path.insert(0, str(UTILITY_PATH))
 
 from utility_functions import load_schema
+
 
 # agents = [
 #     "narrative_agent",
