@@ -11,7 +11,7 @@ Project Karla is divided into four primary layers to ensure a modular and scalab
 ### 1. Discovery Layer (Frontend)
 *Status: Backlog*
 
-A browser-based interface designed to guide the user through initial creative choices (genre, tone, etc.), setting the "seed" for the generation process.
+A browser-based (HTML/CSS/JavaScript) interface designed to guide the user through initial creative choices (genre, tone, etc.), setting the "seed" for the generation process.
 
 ### 2. Creative Layer (Agent Orchestration)
 *Status: In Progress*
