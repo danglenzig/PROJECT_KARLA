@@ -35,12 +35,18 @@ class StoryPlan:
     structure: List[Dict[str, Any]]
     constraints: List[str]
 
-@dataclass(frozen=True)
+#@dataclass(frozen=True)
 class AgentConfig:
-    openai_model: str = "gpt-4.1" # <--better creative writing & structured output
-    qdrant_url: str = "http://localhost:6333"
-    max_iterations: int = 20
-    max_tokens: int = 4000
+    def __init__(self, _agent_name: str, _openai_model: str, _qdrant_url: str, _max_iterations: int = 20, _max_tokens: int = 4000):
+        self.agent_name = _agent_name
+        self.openai_model = _openai_model
+        self.qdrant_url = _qdrant_url
+        self.max_iterations = _max_iterations
+        self.max_tokens = _max_tokens
+    # openai_model: str = "gpt-4.1" # <--better creative writing & structured output
+    # qdrant_url: str = "http://localhost:6333"
+    # max_iterations: int = 20
+    # max_tokens: int = 4000
 
     #schemas_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent.parent / "SCHEMAS") # relative lovation of the SCHEMAS folder
 

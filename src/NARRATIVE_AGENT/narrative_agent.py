@@ -45,7 +45,7 @@ sys.path.insert(0, str(CORE_DATA_MODELS_PATH))
 from utility_functions import timer, load_schema, foo, validate_story_plan
 from qdrant_tools import qdrant_foo, search_genre_examples, search_genre_howto
 from prompt_builder import prompt_builder_foo, build_system_prompt
-from core_data_models import dm_foo, StepType, ReasoningStep, StoryPlan
+from core_data_models import dm_foo, StepType, ReasoningStep, StoryPlan, AgentConfig
 
 
 # print(foo()) # should print "bar"
@@ -67,43 +67,13 @@ logger = logging.getLogger("narrative_agent")
 # load environment variables
 load_dotenv()
 
-# ===========================================================
-# CONFIGURATION
-# ===========================================================
-
-@dataclass(frozen=True)
-class Config:
-    """Centralized, type-safe configuration."""
-    openai_model: str = "gpt-4.1" # <--better creative writing & structured output
-    qdrant_url: str = "http://localhost:6333"
-    max_iterations: int = 20
-    max_tokens: int = 4000
-
-    schemas_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent.parent / "SCHEMAS") # relative lovation of the SCHEMAS folder
-
-    @property
-    def schema_path(self) -> Path:
-        """Computed: Full path to narrative_spec.json."""
-        return self.schemas_dir / "narrative_spec.json"
-    
-    @property
-    def project_root(self) -> Path:
-        """Computed: PROJECT_KARLA/ root directory."""
-        return self.schemas_dir.parent  # SCHEMAS → PROJECT_KARLA
-    
-    def validate_paths(self) -> None:
-        """Production check: Ensure all paths exist."""
-        paths = [
-            self.schema_path,
-            #self.project_root / "TESTING"
-        ]
-        for path in paths:
-            if not path.exists():
-                raise FileNotFoundError(f"Missing: {path}")
-            
-CONFIG = Config()
-CONFIG.validate_paths()
-logger.info(f"CONFIG LOADED: {CONFIG.schema_path}")
+AGENT_CONFIG = AgentConfig(
+    "narrative_agent",
+    "gpt-4.1",
+    "http://localhost:6333",
+    20, 4000
+)
+logger.info(f"AgentConfig loaded: {AGENT_CONFIG.agent_name}")
 
 TOOLS = {
     "search_genre_howto": search_genre_howto,
@@ -116,14 +86,13 @@ TOOLS = {
 
 class NarrativeAgent:
     """Production narrative planning agent."""
-    def __init__(self, config_: Config):
-        self.config = config_
+    def __init__(self, agent_config_: AgentConfig):
+        self.agent_config = agent_config_
         self.openai_client = OpenAI()
-        self.schema = load_schema(config_.schema_path)
         self.messages_: List[Dict[str, str]] = []
         self.iteration = 0
         self.messages_.append(
-            {"role": "system", "content": build_system_prompt("narrative_agent")}
+            {"role": "system", "content": build_system_prompt(self.agent_config.agent_name)}
         )
 
     
@@ -135,7 +104,7 @@ class NarrativeAgent:
         self.iteration = 0
 
         with timer("Full reasoning"):
-            while self.iteration < self.config.max_iterations:
+            while self.iteration < self.agent_config.max_iterations:
                 self.iteration += 1
                 step = self._take_step()
 
@@ -148,7 +117,8 @@ class NarrativeAgent:
     def _take_step(self) -> ReasoningStep:
 
         response = self.openai_client.chat.completions.create(
-            model = self.config.openai_model,
+            model = self.agent_config.openai_model,
+
             messages = self.messages_,
 
             # not supported on mini
@@ -206,7 +176,7 @@ class NarrativeAgent:
     
 def main():
     print("🎭 Narrative Agent v2.1 - Enter prompts below:")
-    agent = NarrativeAgent(CONFIG)
+    agent = NarrativeAgent(AGENT_CONFIG)
 
     try:
         while True:

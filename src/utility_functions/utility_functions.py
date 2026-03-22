@@ -11,6 +11,7 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict
+from pydantic import ValidationError
 
 # Configure module logger (independent of main app)
 logging.basicConfig(
@@ -42,9 +43,6 @@ def safe_json_parse(raw: str) -> Dict[str, Any]:
     """Recover from LLM JSON errors."""
     raw = raw.strip()
     
-    # UNESCAPE newlines first (CRITICAL)
-    raw = raw.replace('\\n', '\n').replace('\\t', '\t').replace('\\"', '"')
-    
     if not raw.startswith('{'):
         raise ValueError("Not a JSON object")
     
@@ -57,18 +55,60 @@ def safe_json_parse(raw: str) -> Dict[str, Any]:
     
     # Slice valid JSON
     json_str = raw[start:end+1]
-    
-    # Fix common bugs
+
     fixes = [
-        (r',\s*([}\]])', r'\1'),  
-        (r'([{\[])\s*,', r'\1'),  
-        (r':\s*,', ': null'),
+        # Fix "naked" backslashes that aren't followed by valid JSON escape chars
+        # This looks for a \ NOT followed by ["\/bfnrtu] and replaces it with \\
+        (r'\\(?![\\\"\/bfnrtu])', r'\\\\'),
+
+        # remove trailing braces commas
+        (r',\s*}', '}'),
+        # remove trailing bracket commas
+        (r',\s*\]', ']'),
+        # remove leading braces commas
+        (r'{\s*,', '{'),
+        # remove leading bracket commas
+        (r'\[\s*,', '['),
+        # fix "empty" values (:,)
+        (r':\s*}', ': null}'),
+        # fix "empty" values followed by another key (:,)
+        (r':\s*,', ': null,'),
+        # clean up double commas
+        (r',\s*,', ','),
     ]
+
+
+    FIX_ITER_MAX = 10
+    fix_count = 0
+    while fix_count < FIX_ITER_MAX:
+
+        fix_count += 1
+        logger.info(f"JSON fix pass: {fix_count}")
+        print(f"\nJSON fix pass: {fix_count}\n")
+        
+        original = json_str
+
+        for pattern, replacement in fixes:
+
+            json_str, count = re.subn(pattern, replacement, json_str, flags=re.DOTALL)
+            if count > 0:
+                msg = f"Rule [{pattern}] fixed {count} occurrence(s) on pass {fix_count}"
+                logger.info(msg)
+                print(msg)
+            # if ^^this actually makes a substitution, I want to see it in the log.
+            # I want to know what errors are being fixed, so I can deal with it 
+            # upstream in the system prompt for the agent generating this data.
+
+        if json_str == original:
+            break
+    if fix_count >= FIX_ITER_MAX:
+        raise ValidationError("Hopelessly broken JSON")
     
-    for pattern, replacement in fixes:
-        json_str = re.sub(pattern, replacement, json_str, flags=re.DOTALL)
-    
-    return json.loads(json_str)
+    try:
+        return json.loads(json_str)
+    except Exception as e:
+        logger.error(f"JSON Validation error: {e}")
+        print(f"JSON Validation error: {e}")
 
 
 
@@ -78,23 +118,27 @@ def foo():
 
 def validate_story_plan(raw_json: str) -> Dict:
 
-    try:
-        data = safe_json_parse(raw_json)
-    except Exception as e:
-        logger.error(f"Raw sample: {repr(raw_json[:300])}...")
-        # Emergency fallback
-        data = {
-            "title": "Untitled Horror VN",
-            "genre": "horror", 
-            "tone": "unknown",
-            "themes": [],
-            "logline": "Generated story plan",
-            "protagonist": {"name": "Player"},
-            "other_characters": [],
-            "setting": "Unknown",
-            "structure": [],
-            "constraints": []
-        }
+    data = safe_json_parse(raw_json)
+
+
+    # FAILSAFE logic. Use later. For now, we want to fail hard and see the JSON problem.
+    # try:
+    #     data = safe_json_parse(raw_json)
+    # except Exception as e:
+    #     logger.error(f"Raw sample: {repr(raw_json[:300])}...")
+    #     # Emergency fallback
+    #     data = {
+    #         "title": "Untitled Horror VN",
+    #         "genre": "horror", 
+    #         "tone": "unknown",
+    #         "themes": [],
+    #         "logline": "Generated story plan",
+    #         "protagonist": {"name": "Player"},
+    #         "other_characters": [],
+    #         "setting": "Unknown",
+    #         "structure": [],
+    #         "constraints": []
+    #     }
     
     # Fail-Safe field extraction
     model_data = {
