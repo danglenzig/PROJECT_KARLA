@@ -1,4 +1,4 @@
-# PROJECT_KARLA/src/TESTING/narrative_agent_tester.py
+# PROJECT_KARLA/src/NARRATIVE_AGENT/narrative_agent.py
 """
 Narrative Agent v2.0 - Production-Ready Visual Novel Story Planner
 Transforms user prompts into validated StoryPlan JSON via structured reasoning.
@@ -51,11 +51,11 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     handlers=[
-        logging.FileHandler("narrative_agent_tester.log"),
+        logging.FileHandler("narrative_agent.log"),
         logging.StreamHandler(sys.stdout)
     ]
 )
-logger = logging.getLogger("narrative_agent_tester")
+logger = logging.getLogger("narrative_agent")
 
 # load environment variables
 load_dotenv()
