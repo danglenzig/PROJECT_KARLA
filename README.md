@@ -1,6 +1,6 @@
 # PROJECT KARLA
 
-**Project Karla** is an automated, multi-agent pipeline designed to transform natural language prompts into fully functional [Ren’Py](https://www.renpy.org/) Visual Novels. By leveraging specialized LLM agents and a dedicated build layer, Karla handles everything from narrative structure and character development to asset generation and final script compilation.
+**Project Karla** is an automated, multi-agent pipeline designed to transform natural language prompts into fully functional [Ren’Py](https://www.renpy.org/) visual novel games. By leveraging specialized LLM agents, the latest agentic orchestration frameworks,  and a dedicated build layer, Karla handles everything from narrative structure and character development to asset generation and final script compilation.
 
 ---
 
@@ -43,10 +43,10 @@ The following table outlines the flow of data through the system:
 
 | Phase | Agent / Component | Responsibility | Input $\rightarrow$ Output |
 | :--- | :--- | :--- | :--- |
-| **Discovery** | **Discovery Agent** | Gathers user rquirements and input | User $\rightarrow$ Natural-language prompt |
-| **Creative** | **Narrative Agent** | Generates the 3-act structural JSON. | NL Input $\rightarrow$ High-level JSON |
-| **Creative** | **Dialogue Agent** | Expands summaries into full dialogue blocks. | High-level JSON $\rightarrow$ Script Fragments |
-| **Creative** | **Visual Agent** | Generates BGs and Sprites from descriptions. | High-level JSON $\rightarrow$ PNG Assets |
+| **Discovery** | **Discovery Agent** | Gathers user rquirements and input | User choices $\rightarrow$ Schematized System Prompt |
+| **Creative** | **Narrative Agent** | Generates the 3-act structural JSON. | System Prompt $\rightarrow$ High-level JSON Game Spec |
+| **Creative** | **Dialogue Agent** | Expands summaries into full dialogue blocks. | JSON Game Spec $\rightarrow$ Script Fragments |
+| **Creative** | **Visual Agent** | Generates BGs and Sprites from descriptions. | JSON Game Spec $\rightarrow$ Character & Environment Art Assets |
 | **Creative** | **Staging Agent** | Maps assets to dialogue; validates file paths. | All above $\rightarrow$ Standardized Manifest |
-| **Build** | **PowerShell/Python** | Injects manifest into `.rpy`; organizes files. | Manifest $\rightarrow$ Functional .exe |
-| **Runtime** | **Ren'Py** | Presents the finished game to the user | `.rpy` & supporting RP files $\rightarrow$ Playable game |
+| **Build** | **PowerShell/Python** | Injects manifest into `.rpy`; organizes files. | Manifest $\rightarrow$ Ren'Py Build Files |
+| **Runtime** | **Ren'Py** | Presents the finished game to the user | `.rpy` & supporting RP files $\rightarrow$ Executable Game |
