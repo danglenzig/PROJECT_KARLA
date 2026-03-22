@@ -12,19 +12,9 @@ SRC_ROOT = Path(__file__).parent.parent  # src/TESTING -> src
 # PROJECT_KARLA/src/utility_functions/
 UTILITY_PATH = SRC_ROOT / "utility_functions" 
 sys.path.insert(0, str(UTILITY_PATH))
-
 from utility_functions import load_schema
 
 
-# agents = [
-#     "narrative_agent",
-#     "dialogue_agent"
-# ]
-
-# schema_names = [
-#     "narrative_spec",
-#     "build_spec"
-# ]
 
 #schemas_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent.parent / "SCHEMAS") # relative location of the SCHEMAS folder
 schemas_dir = SRC_ROOT.parent / "SCHEMAS"
@@ -170,3 +160,5 @@ def build_system_prompt(agent_name: str) -> str:
     
     fn = builder_dict[agent_name]
     return fn(schema)
+
+print("foo")
