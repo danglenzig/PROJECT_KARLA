@@ -70,6 +70,9 @@ def safe_json_parse(raw: str) -> Dict[str, Any]:
     
     return json.loads(json_str)
 
+
+
+
 def foo():
     return("\n\nbar\n\n")
 
@@ -93,7 +96,7 @@ def validate_story_plan(raw_json: str) -> Dict:
             "constraints": []
         }
     
-    # Safe field extraction
+    # Fail-Safe field extraction
     model_data = {
         "title": data.get("title", "Untitled"),
         "genre": data.get("genre", "horror"),

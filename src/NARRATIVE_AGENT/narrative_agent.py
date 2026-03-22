@@ -34,17 +34,24 @@ sys.path.insert(0, str(UTILITY_PATH))
 QDRANT_PATH = SRC_ROOT / "qdrant_tools"
 sys.path.insert(0, str(QDRANT_PATH))
 
-# PROJECT_KARLA/src/prompt/builder
+# PROJECT_KARLA/src/prompt_builder
 PROMPT_BLDR_PATH = SRC_ROOT / "prompt_builder"
 sys.path.insert(0, str(PROMPT_BLDR_PATH))
+
+# PROJECT_KARLA/src/core_data_models
+CORE_DATA_MODELS_PATH = SRC_ROOT / "core_data_models"
+sys.path.insert(0, str(CORE_DATA_MODELS_PATH))
 
 from utility_functions import timer, load_schema, foo, validate_story_plan
 from qdrant_tools import qdrant_foo, search_genre_examples, search_genre_howto
 from prompt_builder import prompt_builder_foo, build_system_prompt
+from core_data_models import dm_foo, StepType, ReasoningStep, StoryPlan
+
 
 print(foo()) # should print "bar"
 print(qdrant_foo()) # --> "qdrant_bar"
 print(prompt_builder_foo()) # --> "prompt_builder_bar"
+print(dm_foo()) # -->
 
 # configure logging first -- production best practice
 logging.basicConfig(
@@ -61,48 +68,13 @@ logger = logging.getLogger("narrative_agent")
 load_dotenv()
 
 # ===========================================================
-# CORE DATA MODELS
-# ===========================================================
-
-class StepType(str, Enum):
-    """Agent reasoning steps - finite state machine transitions."""
-    START = "START"           # Echo user input
-    CONTEXTUALIZE = "CONTEXTUALIZE"  # Identify genre
-    PLAN = "PLAN"             # Outline reasoning
-    TOOL = "TOOL"             # Request tool call  
-    OBSERVE = "OBSERVE"        # Process tool result
-    OUTPUT = "OUTPUT"         # Final validated JSON
-
-class ReasoningStep(BaseModel):
-    """Single step in agent's reasoning chain."""
-    step: StepType = Field(..., description="Current reasoning phase")
-    content: Optional[str] = Field(None, description="Text content or JSON")
-    tool: Optional[str] = Field(None, description="Tool name if TOOL step")
-    tool_input: Optional[str] = Field(None, description="JSON string tool params")
-    tool_output: Optional[str] = Field(None, description="Raw tool result")
-
-@dataclass(frozen=True)
-class StoryPlan:
-    """Validated output schema - feeds downstream VN generator."""
-    title: str
-    genre: str
-    tone: str
-    themes: List[str]
-    logline: str
-    protagonist: Dict[str, Any]
-    other_characters: List[Dict[str, Any]]
-    setting: str
-    structure: List[Dict[str, Any]]
-    constraints: List[str]
-
-# ===========================================================
 # CONFIGURATION
 # ===========================================================
 
 @dataclass(frozen=True)
 class Config:
     """Centralized, type-safe configuration."""
-    openai_model: str = "gpt-4.1"
+    openai_model: str = "gpt-4.1" # <--better creative writing & structured output
     qdrant_url: str = "http://localhost:6333"
     max_iterations: int = 20
     max_tokens: int = 4000
@@ -178,8 +150,10 @@ class NarrativeAgent:
         response = self.openai_client.chat.completions.create(
             model = self.config.openai_model,
             messages = self.messages_,
-            max_tokens = self.config.max_tokens,
-            temperature = 0.1
+
+            # not supported on mini
+            # max_tokens = self.config.max_tokens,
+            # temperature = 0.1
         )
 
         raw_content = response.choices[0].message.content
