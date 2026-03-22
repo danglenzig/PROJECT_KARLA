@@ -1,7 +1,7 @@
 {
   "title": "Short working title for the VN",
   "genre": "genre_name", 
-  "tone": "short phrase (e.g. 'bittersweet, slow-burn')",
+  "tone": "short phrase (e.g. bittersweet, slow-burn)",
   "themes": ["theme 1", "theme 2"],
   "logline": "1-2 sentence high-level premise",
   "protagonist": {
@@ -29,7 +29,7 @@
           "summary": "2-3 sentences of action",
           "choice": "description of the main player choice",
           "outcomes": ["Outcome A", "Outcome B"],
-          "dialogue_samples": ["Character: 'Line of dialogue'"]
+          "dialogue_samples": ["Character: Line of dialogue"]
         },
         {
           "scene_id": "s2",
@@ -37,7 +37,7 @@
           "summary": "Summary content...",
           "choice": "choice content...",
           "outcomes": ["Outcome A", "Outcome B"],
-          "dialogue_samples": ["Character: 'Line'"]
+          "dialogue_samples": ["Character: Line"]
         }
       ]
     },

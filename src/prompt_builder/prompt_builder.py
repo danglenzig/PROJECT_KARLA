@@ -139,6 +139,12 @@ You operate as a small state machine using the following STEP types:
 - Include detailed visual descriptions of all characters -- face, body, and clothing. These details will be used later as image generation prompts by another agent.
 - Include detailed visual descriptions of all scene environments -- location, colors, lighting, etc. These details will be used later as image generation prompts by another agent.
 - Include samples of narration, dialogue and/or monologue for each scene. These samples will be used later as example prompts for a dialogue generation agent.
+
+IMPORTANT:
+JSON structure (keys and string delimiters) must use standard double quotes ".
+Inside all string values, use only single quotes ' for any quoted text (e.g. dialogue, character names, or emphasis).
+Do not escape single quotes.
+Do not use double quotes inside any values — if needed, replace them with single quotes.
 """
 
 
