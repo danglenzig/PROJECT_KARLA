@@ -48,10 +48,10 @@ from prompt_builder import prompt_builder_foo, build_system_prompt
 from core_data_models import dm_foo, StepType, ReasoningStep, StoryPlan
 
 
-print(foo()) # should print "bar"
-print(qdrant_foo()) # --> "qdrant_bar"
-print(prompt_builder_foo()) # --> "prompt_builder_bar"
-print(dm_foo()) # -->
+# print(foo()) # should print "bar"
+# print(qdrant_foo()) # --> "qdrant_bar"
+# print(prompt_builder_foo()) # --> "prompt_builder_bar"
+# print(dm_foo()) # -->
 
 # configure logging first -- production best practice
 logging.basicConfig(
