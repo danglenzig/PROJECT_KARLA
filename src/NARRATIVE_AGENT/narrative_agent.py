@@ -5,23 +5,17 @@ Transforms user prompts into validated StoryPlan JSON via structured reasoning.
 Part of Project Karla's Narrative Studio pipeline.
 """
 
-import os
 import sys
 import json
 import logging
-import re
-import time
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field, ValidationError
-from enum import Enum
 from openai import OpenAI
-from langchain_qdrant import QdrantVectorStore
-from langchain_openai import OpenAIEmbeddings
-from qdrant_client import QdrantClient
 
+CLI_MODE: bool = True
 
 # PROJECT_KARLA/src/
 SRC_ROOT = Path(__file__).parent.parent  # src/TESTING -> src
@@ -174,7 +168,16 @@ class NarrativeAgent:
         logger.info("StoryPlan validated")
         return plan
     
+
+def get_story_plan(user_prompt: str):
+    agent = NarrativeAgent(AGENT_CONFIG)
+    plan: StoryPlan = agent.process_user_input(user_prompt.strip())
+    return plan
+    
 def main():
+
+    # for CLI testing
+
     print("🎭 Narrative Agent v2.1 - Enter prompts below:")
     agent = NarrativeAgent(AGENT_CONFIG)
 
