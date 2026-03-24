@@ -42,6 +42,7 @@ from prompt_builder import prompt_builder_foo, build_system_prompt
 from core_data_models import dm_foo, StepType, ReasoningStep, StoryPlan, AgentConfig
 
 
+
 # print(foo()) # should print "bar"
 # print(qdrant_foo()) # --> "qdrant_bar"
 # print(prompt_builder_foo()) # --> "prompt_builder_bar"
@@ -175,6 +176,9 @@ def get_story_plan(user_prompt: str):
     return plan
     
 def main():
+
+    if not CLI_MODE:
+        return
 
     # for CLI testing
 

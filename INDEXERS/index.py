@@ -20,6 +20,11 @@ def collection_exists(
     except Exception:
         return False
     
+
+def create_build_agent_rag():
+    # maybe just do this with a system prompt
+    pass
+
 def create_genre_collection(
         file_path: Path,
         collection_name_: str
@@ -30,7 +35,7 @@ def create_genre_collection(
         raise FileNotFoundError(f"FILE NOT FOUND: {file_path}")
     
     # load the source document, according to its type
-    print(f"Loading {file_path}...")
+    print(f"\n\nLoading {file_path}...\n\n")
     if file_path.suffix == ".pdf":
         loader = PyPDFLoader(file_path)
     else:
@@ -64,7 +69,7 @@ def create_genre_collection(
         collection_name = collection_name_
     )
 
-    print(f"Created {collection_name_}: {len(chunks)} chunks.")
+    print(f"\n\nCreated {collection_name_}: {len(chunks)} chunks.\n\n")
 
 
 def append_to_genre_collection(
@@ -77,7 +82,7 @@ def append_to_genre_collection(
 
 
     # load the source document, according to its type
-    print(f"Loading {file_path}...")
+    print(f"\n\nLoading {file_path}...\n\n")
     if file_path.suffix == ".pdf":
         loader = PyPDFLoader(file_path)
     else:
@@ -111,13 +116,28 @@ def append_to_genre_collection(
     )
     vector_store.add_documents(new_chunks)
 
-    print(f"Added {file_path} to {collection_name_}: {len(new_chunks)} new chunks")
+    print(f"\n\nAdded {file_path} to {collection_name_}: {len(new_chunks)} new chunks\n\n")
 
-#create_genre_collection(Path("ROMANCE_howto_00.txt"), "romance_howto")
-#append_to_genre_collection(Path("ROMANCE_howto_01.txt"), "romance_howto")
-#create_genre_collection(Path("ROMANCE_examples_00.txt"), "romance_examples")
-#append_to_genre_collection(Path("ROMANCE_examples_01.txt"), "romance_examples")
-#append_to_genre_collection(Path("ROMANCE_examples_SOG.pdf"), "romance_examples")
+# create_genre_collection(Path("_ROMANCE_howto_00.txt"), "romance_howto")
+# append_to_genre_collection(Path("_ROMANCE_howto_01.txt"), "romance_howto")
+# create_genre_collection(Path("_ROMANCE_examples_00.txt"), "romance_examples")
+# append_to_genre_collection(Path("_ROMANCE_examples_01.txt"), "romance_examples")
+# append_to_genre_collection(Path("_ROMANCE_examples_SOG.pdf"), "romance_examples")
+
+# create_genre_collection(Path("_MYSTERY_howto_00.txt"), "mystery_howto")
+# create_genre_collection(Path("_MYSTERY_examples_00.txt"), "mystery_examples")
+# append_to_genre_collection(Path("_MYSTERY_examples_01.txt"), "mystery_examples")
+# append_to_genre_collection(Path("_MYSTERY_examples_02.txt"), "mystery_examples")
+# append_to_genre_collection(Path("_MYSTERY_examples_03.txt"), "mystery_examples")
+
+create_genre_collection(Path("_HORROR_howto_00.txt"), "horror_howto")
+create_genre_collection(Path("_HORROR_examples_00.txt"), "horror_examples")
+append_to_genre_collection(Path("_HORROR_examples_01.txt"), "horror_examples")
+append_to_genre_collection(Path("_HORROR_examples_02.txt"), "horror_examples")
+append_to_genre_collection(Path("_HORROR_examples_03.txt"), "horror_examples")
+append_to_genre_collection(Path("_HORROR_examples_04.txt"), "horror_examples")
+append_to_genre_collection(Path("_HORROR_examples_05.txt"), "horror_examples")
+append_to_genre_collection(Path("_HORROR_examples_06.txt"), "horror_examples")
 
 
 
