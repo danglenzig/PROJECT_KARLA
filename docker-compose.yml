@@ -8,9 +8,13 @@ services:
     image: valkey/valkey
     ports:
       - 6379:6379
+    volumes:
+      - /mnt/c/KARLA/PROJECT_KARLA/valkey:/data
+    restart: unless-stopped
   vector-db:
     image: qdrant/qdrant
     ports:
       - 6333:6333
     volumes:
-      - ./qdrant_storage:qdrant/storage
+      - /mnt/c/KARLA/PROJECT_KARLA/qdrant_storage:/qdrant/storage
+    restart: unless-stopped

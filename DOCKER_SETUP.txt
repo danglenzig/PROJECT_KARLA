@@ -1,0 +1,85 @@
+WSL + Docker Project Setup Checklist
+
+Day 1: New Project
+1. mkdir myproject && cd myproject
+2. python -m venv venv
+3. source venv/bin/activate
+4. pip install -r requirements.txt  # or pip install fastapi uvicorn qdrant-client redis etc
+5. git init
+6. echo "venv/
+   qdrant_storage/
+   valkey/
+   __pycache__/
+   .pytest_cache/
+   *.log" > .gitignore
+7. git add .gitignore
+
+Docker Services (docker-compose.yml)
+
+services:
+  valkey:
+    image: valkey/valkey:latest
+    ports:
+      - ["6379:6379"]
+    volumes:
+      - ["/mnt/c/PATH/TO/myproject/valkey:/data"]
+    restart: unless-stopped
+  
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - ["6333:6333"]
+    volumes:
+      - ["/mnt/c/PATH/TO/myproject/qdrant_storage:/qdrant/storage"]
+    restart: unless-stopped
+    
+  some_new_service:
+    image: service_image/service_image:latest
+    ports:
+      - ["1234:1234"] # example
+    volumes:
+      - ["/mnt/c/PATH/TO/myproject/service_dir:/WHAT_THAT_SERVICE_EXPECTS"]
+    restart: unless-stopped
+
+    #REPLACE /mnt/c/PATH/TO/myproject with your actual project path.
+
+# COMMON SERVICE PATHS (right side of volumes)
+# Redis/Valkey:           /data                    [Port 6379]
+# PostgreSQL:            /var/lib/postgresql/data  [Port 5432]  
+# MongoDB:               /data/db                 [Port 27017]
+# MySQL:                 /var/lib/mysql           [Port 3306]
+# MinIO:                 /data                    [Port 9000]
+# Qdrant:                /qdrant/storage          [Port 6333]
+# Elasticsearch:         /usr/share/elasticsearch/data [Port 9200]
+# Nginx (static files):  /usr/share/nginx/html    [Port 80]
+# Something else:        Google "servicename docker volume path"
+
+8. mkdir qdrant_storage valkey
+
+9. git add docker-compose.yml
+
+10. docker compose up -d
+
+11. docker compose ps          # Both "Up"
+
+12. curl http://localhost:6333/collections  # Empty OK
+
+Daily Workflow
+
+cd /mnt/c/PATH/TO/myproject
+source venv/bin/activate
+docker compose up -d     # Start (data persists)
+# Run your python app
+docker compose down       # Stop (data persists)
+
+After Reboot
+
+1. Windows: Start Docker Desktop (minimize it)
+2. WSL: cd /mnt/c/PATH/TO/myproject  
+3. docker compose up -d
+4. Done. Data intact.
+Verify Always Works
+text
+docker compose ps                    # Status
+curl http://localhost:6333/collections  # Qdrant
+docker exec [projectname]-valkey-1 valkey-cli ping  # PONG

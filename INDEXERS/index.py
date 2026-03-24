@@ -118,17 +118,17 @@ def append_to_genre_collection(
 
     print(f"\n\nAdded {file_path} to {collection_name_}: {len(new_chunks)} new chunks\n\n")
 
-# create_genre_collection(Path("_ROMANCE_howto_00.txt"), "romance_howto")
-# append_to_genre_collection(Path("_ROMANCE_howto_01.txt"), "romance_howto")
-# create_genre_collection(Path("_ROMANCE_examples_00.txt"), "romance_examples")
-# append_to_genre_collection(Path("_ROMANCE_examples_01.txt"), "romance_examples")
-# append_to_genre_collection(Path("_ROMANCE_examples_SOG.pdf"), "romance_examples")
+create_genre_collection(Path("_ROMANCE_howto_00.txt"), "romance_howto")
+append_to_genre_collection(Path("_ROMANCE_howto_01.txt"), "romance_howto")
+create_genre_collection(Path("_ROMANCE_examples_00.txt"), "romance_examples")
+append_to_genre_collection(Path("_ROMANCE_examples_01.txt"), "romance_examples")
+append_to_genre_collection(Path("_ROMANCE_examples_SOG.pdf"), "romance_examples")
 
-# create_genre_collection(Path("_MYSTERY_howto_00.txt"), "mystery_howto")
-# create_genre_collection(Path("_MYSTERY_examples_00.txt"), "mystery_examples")
-# append_to_genre_collection(Path("_MYSTERY_examples_01.txt"), "mystery_examples")
-# append_to_genre_collection(Path("_MYSTERY_examples_02.txt"), "mystery_examples")
-# append_to_genre_collection(Path("_MYSTERY_examples_03.txt"), "mystery_examples")
+create_genre_collection(Path("_MYSTERY_howto_00.txt"), "mystery_howto")
+create_genre_collection(Path("_MYSTERY_examples_00.txt"), "mystery_examples")
+append_to_genre_collection(Path("_MYSTERY_examples_01.txt"), "mystery_examples")
+append_to_genre_collection(Path("_MYSTERY_examples_02.txt"), "mystery_examples")
+append_to_genre_collection(Path("_MYSTERY_examples_03.txt"), "mystery_examples")
 
 create_genre_collection(Path("_HORROR_howto_00.txt"), "horror_howto")
 create_genre_collection(Path("_HORROR_examples_00.txt"), "horror_examples")
