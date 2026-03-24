@@ -33,6 +33,6 @@ def story_plan(user_prompt: str):
 
 
 # testing...
-# input = "Write a story about a group of elderly people who save the day when the staff of their nursing home becomes possesed by an alien entity"
+# input = "Write a story about a group of satanic cult cheerleaders"
 # print(story_plan(input))
 # ^^this works as expected (back end is all fine)

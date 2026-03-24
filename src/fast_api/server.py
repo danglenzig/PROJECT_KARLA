@@ -1,6 +1,6 @@
 # PROJECT_KARLA/src/fast_api/server.py
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Body
 from pathlib import Path
 import sys
 
@@ -46,7 +46,9 @@ def post_foo(input: str = Query(..., description="Foo")):
 
 @app.post('/story_plan/')
 def get_story_plan(
+
     plan_input: str = Query(..., description="The story plan input")
+    
 ):
     job = queue.enqueue(story_plan, plan_input)
     return {"status": "queued", "job_id": job.id}
@@ -58,6 +60,26 @@ def get_result(
     job = queue.fetch_job(
         job_id=_job_id
     )
+
+    if job is None:
+        return {"error": f"Job not found: {_job_id}"}
+
     result = job.return_value()
-    return {"result": result}
+    return {
+        "status": job.get_status(),
+        "result": result
+    }
+
+
+
+# FYI: RQ JobStatus values
+# CREATED = 'created'
+# QUEUED = 'queued'
+# FINISHED = 'finished'
+# FAILED = 'failed'
+# STARTED = 'started'
+# DEFERRED = 'deferred'
+# SCHEDULED = 'scheduled'
+# STOPPED = 'stopped'
+# CANCELED = 'canceled'
 
