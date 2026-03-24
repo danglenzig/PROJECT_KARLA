@@ -8,6 +8,7 @@ attrs==26.1.0
 certifi==2026.2.25
 charset-normalizer==3.4.6
 click==8.3.1
+contextlib-ext==0.0.0
 croniter==6.2.2
 dataclasses-json==0.6.7
 distro==1.9.0

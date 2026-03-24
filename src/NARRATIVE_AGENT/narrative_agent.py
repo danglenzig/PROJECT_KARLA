@@ -162,17 +162,30 @@ class NarrativeAgent:
             {"role": "assistant", "content": observe_step.model_dump_json()}
         )
 
-    def _handle_output(self, step: ReasoningStep) -> StoryPlan:
+    def _handle_output(self, step: ReasoningStep)->str:
         """Final validation"""
-        model_data = validate_story_plan(step.content)
-        plan = StoryPlan(**model_data)
-        logger.info("StoryPlan validated")
-        return plan
+
+        try:
+            model_data = validate_story_plan(step.content)
+            plan = StoryPlan(**model_data)
+            return step.content
+        except Exception as e:
+            print(f"INVALID STORY PLAN, Error: {e}")
+            return "INVALID STORY PLAN"
+        # model_data = validate_story_plan(step.content)
+        # plan = StoryPlan(**model_data)
+        # logger.info("StoryPlan validated")
+        
+        # # TODO: only validate against StoryPlan
+        # # and return step.content
+
+        # return plan
     
 
 def get_story_plan(user_prompt: str):
     agent = NarrativeAgent(AGENT_CONFIG)
-    plan: StoryPlan = agent.process_user_input(user_prompt.strip())
+    #plan: StoryPlan = agent.process_user_input(user_prompt.strip())
+    plan: str= agent.process_user_input(user_prompt.strip()) # this is just a string now
     return plan
     
 def main():
@@ -192,10 +205,14 @@ def main():
                 continue
 
             print("Thinking...")
-            plan = agent.process_user_input(prompt)
+            plan = agent.process_user_input(prompt) # this is just a string now
 
             print("\n---STORY PLAN---\n")
-            print(json.dumps(plan.__dict__, indent=2))
+            #print(json.dumps(plan.__dict__, indent=2))
+            print(plan)
+
+
+
     except KeyboardInterrupt:
         print("\nExiting")
     except Exception as e:
