@@ -118,27 +118,27 @@ def foo():
 
 def validate_story_plan(raw_json: str) -> Dict:
 
-    data = safe_json_parse(raw_json)
+    #data = safe_json_parse(raw_json)
 
 
     # FAILSAFE logic. Use later. For now, we want to fail hard and see the JSON problem.
-    # try:
-    #     data = safe_json_parse(raw_json)
-    # except Exception as e:
-    #     logger.error(f"Raw sample: {repr(raw_json[:300])}...")
-    #     # Emergency fallback
-    #     data = {
-    #         "title": "Untitled Horror VN",
-    #         "genre": "horror", 
-    #         "tone": "unknown",
-    #         "themes": [],
-    #         "logline": "Generated story plan",
-    #         "protagonist": {"name": "Player"},
-    #         "other_characters": [],
-    #         "setting": "Unknown",
-    #         "structure": [],
-    #         "constraints": []
-    #     }
+    try:
+        data = safe_json_parse(raw_json)
+    except Exception as e:
+        logger.error(f"Raw sample: {repr(raw_json[:300])}...")
+        # Emergency fallback
+        data = {
+            "title": "INVALID",
+            "genre": "INVALID", 
+            "tone": "INVALID",
+            "themes": [],
+            "logline": "INVALID",
+            "protagonist": {"name": "INVALID"},
+            "other_characters": [],
+            "setting": "INVALID",
+            "structure": [],
+            "constraints": []
+        }
     
     # Fail-Safe field extraction
     model_data = {

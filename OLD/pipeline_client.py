@@ -2,6 +2,18 @@ import asyncio
 import httpx
 from contextlib import asynccontextmanager
 from typing import List, Dict, Any
+import json
+from pathlib import Path
+import sys
+
+# PROJECT_KARLA/src/
+SRC_ROOT = Path(__file__).parent.parent  # src/pipeline -> src
+
+# PROJECT_KARLA/src/core_data_models
+CORE_DATA_MODELS_PATH = SRC_ROOT / "core_data_models"
+sys.path.insert(0, str(CORE_DATA_MODELS_PATH))
+
+from core_data_models import StoryPlan
 
 class PipelineClient:
     def __init__(self, _base_url = "http://localhost:8000"):
@@ -39,9 +51,13 @@ class PipelineClient:
 async def main():
     narrative_client = PipelineClient()
     async with narrative_client.session():
-        spec = await narrative_client.generate_story_plan(
-            "Write a scary story about satanic cheerleaders"
+        spec: StoryPlan = await narrative_client.generate_story_plan(
+            "Write a scary story about a group of elderly nursing home residents who start acting strangly and malevolently after a newly discovered comet passes overhead."
         )
-        print(spec) # send to narrative and art agents
+        print(json.dumps(spec, indent=2))
+        print(f"\n\n{spec['title']}")
+
+        ## if the agent needs to be re-run, spec['title'] == "INVALID"
+
 
 asyncio.run(main())

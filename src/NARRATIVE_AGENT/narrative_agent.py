@@ -65,6 +65,7 @@ load_dotenv()
 AGENT_CONFIG = AgentConfig(
     "narrative_agent",
     "gpt-4.1",
+    #"gpt-4o-mini"
     "http://localhost:6333",
     20, 4000
 )
@@ -165,21 +166,18 @@ class NarrativeAgent:
     def _handle_output(self, step: ReasoningStep)->str:
         """Final validation"""
 
-        try:
-            model_data = validate_story_plan(step.content)
-            plan = StoryPlan(**model_data)
-            return step.content
-        except Exception as e:
-            print(f"INVALID STORY PLAN, Error: {e}")
-            return "INVALID STORY PLAN"
-        # model_data = validate_story_plan(step.content)
-        # plan = StoryPlan(**model_data)
-        # logger.info("StoryPlan validated")
+        # try:
+        #     model_data = validate_story_plan(step.content)
+        #     plan = StoryPlan(**model_data)
+        #     return step.content
+        # except Exception as e:
+        #     print(f"INVALID STORY PLAN, Error: {e}")
+        #     return "INVALID STORY PLAN"
         
-        # # TODO: only validate against StoryPlan
-        # # and return step.content
-
-        # return plan
+        model_data = validate_story_plan(step.content)
+        plan = StoryPlan(**model_data)
+        logger.info("StoryPlan validated")
+        return plan
     
 
 def get_story_plan(user_prompt: str):
