@@ -52,7 +52,7 @@ async def main():
     narrative_client = PipelineClient()
     async with narrative_client.session():
         spec: StoryPlan = await narrative_client.generate_story_plan(
-            "Write a scary story about satanic cheerleaders"
+            "Write a scary story about a group of elderly nursing home residents who start acting strangly and malevolently after a newly discovered comet passes overhead."
         )
         print(json.dumps(spec, indent=2))
         print(f"\n\n{spec['title']}")
