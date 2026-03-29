@@ -115,10 +115,19 @@ async def create_narrative_spec(_pitch_input: str):
     spec_dict = updated_state.get("spec_dict")
     print(json.dumps(spec_dict, indent=2))
 
-async def main():
+# async def main():
+#     try:
+#         await create_narrative_spec("Write a scary story about satanic cheerleaders")
+#     finally:
+#         await async_client.aclose()
+
+#asyncio.run(main())
+
+async def initiate(pitch_input: str):
     try:
-        await create_narrative_spec("Write a scary story about satanic cheerleaders")
+        await create_narrative_spec(pitch_input)
     finally:
         await async_client.aclose()
 
-asyncio.run(main())
+user_input = input("--> ")
+asyncio.run(initiate(user_input))
