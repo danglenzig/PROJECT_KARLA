@@ -154,8 +154,3 @@ def validate_story_plan(raw_json: str) -> Dict:
         "constraints": data.get("constraints", [])
     }
     return model_data
-
-    #return StoryPlan(**model_data)
-
-#     # Caller must provide/import StoryPlan and do: StoryPlan(**model_data)
-#     return model_data

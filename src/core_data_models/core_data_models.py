@@ -1,3 +1,5 @@
+# PROJECT_KARLA/src/core_data_models/core_data_models.py
+
 from enum import Enum
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
@@ -43,32 +45,6 @@ class AgentConfig:
         self.qdrant_url = _qdrant_url
         self.max_iterations = _max_iterations
         self.max_tokens = _max_tokens
-    # openai_model: str = "gpt-4.1" # <--better creative writing & structured output
-    # qdrant_url: str = "http://localhost:6333"
-    # max_iterations: int = 20
-    # max_tokens: int = 4000
-
-    #schemas_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent.parent / "SCHEMAS") # relative lovation of the SCHEMAS folder
-
-    # @property
-    # def schema_path(self) -> Path:
-    #     """Computed: Full path to narrative_spec.json."""
-    #     return self.schemas_dir / "narrative_spec.json"
-    
-    # @property
-    # def project_root(self) -> Path:
-    #     """Computed: PROJECT_KARLA/ root directory."""
-    #     return self.schemas_dir.parent  # SCHEMAS → PROJECT_KARLA
-    
-    # def validate_paths(self) -> None:
-    #     """Production check: Ensure all paths exist."""
-    #     paths = [
-    #         self.schema_path,
-    #         #self.project_root / "TESTING"
-    #     ]
-    #     for path in paths:
-    #         if not path.exists():
-    #             raise FileNotFoundError(f"Missing: {path}")
 
 def dm_foo():
     print("\n\ndm_bar\n\n")
