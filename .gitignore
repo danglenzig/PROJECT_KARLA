@@ -1,3 +1,5 @@
+docker-compose.yml
+.yml
 valkey/
 qdrant_storage/
 .vscode
