@@ -1,0 +1,21 @@
+sequenceDiagram
+    participant USR as Content Consumer
+    participant FAPI as FastAPI
+    participant RQ as Redis Queue
+    participant WKR as Worker Agent
+    participant GRAPH as LangGraph Workflow
+    participant RAG as Qdrant VectorDB
+    participant LLM as OpenAI
+
+    USR ->> FAPI: Request for agent product
+    FAPI -->> USR: Job ID
+    FAPI ->> RQ: Enqueue job
+    RQ ->> WKR: Dispatch job
+    WKR ->> GRAPH: Invoke workflow
+    GRAPH ->> LLM: Classify / draft
+    GRAPH ->> RAG: Vector similarity search
+    RAG -->> GRAPH: Retrieved context
+    GRAPH ->> LLM: Draft / retry if needed
+    GRAPH -->> WKR: Final StoryPlan
+    WKR ->> FAPI: Output
+    FAPI ->> USR: Output

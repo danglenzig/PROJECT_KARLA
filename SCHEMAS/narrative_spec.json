@@ -27,33 +27,35 @@
           "scene_id": "s1",
           "label": "Scene Label",
           "summary": "2-3 sentences of action",
+          "environment_description": "Visual description of the scene's environment",
           "choice": "description of the main player choice",
           "outcomes": ["Outcome A", "Outcome B"],
-          "dialogue_samples": ["Character: Line of dialogue"]
+          "dialogue_samples": ["Character: 'Line of dialogue'"]
         },
         {
           "scene_id": "s2",
           "label": "Next Scene Label",
           "summary": "Summary content...",
+          "environment_description": "Visual description...",
           "choice": "choice content...",
           "outcomes": ["Outcome A", "Outcome B"],
-          "dialogue_samples": ["Character: Line"]
+          "dialogue_samples": ["Character: 'Line'"]
         }
       ]
     },
     {
       "act_id": "a2",
       "scenes": [
-        { "scene_id": "s1", "label": "Scene Label", "summary": "...", "choice": "...", "outcomes": [], "dialogue_samples": [] },
-        { "scene_id": "s2", "label": "Scene Label", "summary": "...", "choice": "...", "outcomes": [], "dialogue_samples": [] },
-        { "scene_id": "s3", "label": "Scene Label", "summary": "...", "choice": "...", "outcomes": [], "dialogue_samples": [] }
+        { "scene_id": "s1", "label": "Scene Label", "summary": "...", "environment_description": "...", "choice": "...", "outcomes": [], "dialogue_samples": [] },
+        { "scene_id": "s2", "label": "Scene Label", "summary": "...", "environment_description": "...", "choice": "...", "outcomes": [], "dialogue_samples": [] },
+        { "scene_id": "s3", "label": "Scene Label", "summary": "...", "environment_description": "...", "choice": "...", "outcomes": [], "dialogue_samples": [] }
       ]
     },
     {
       "act_id": "a3",
       "scenes": [
-        { "scene_id": "s1", "label": "Scene Label", "summary": "...", "choice": "...", "outcomes": [], "dialogue_samples": [] },
-        { "scene_id": "s2", "label": "Scene Label", "summary": "...", "choice": "...", "outcomes": [], "dialogue_samples": [] }
+        { "scene_id": "s1", "label": "Scene Label", "summary": "...", "environment_description": "...", "choice": "...", "outcomes": [], "dialogue_samples": [] },
+        { "scene_id": "s2", "label": "Scene Label", "summary": "...", "environment_description": "...", "choice": "...", "outcomes": [], "dialogue_samples": [] }
       ]
     }
   ],
