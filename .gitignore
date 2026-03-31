@@ -1,3 +1,4 @@
+.yml
 valkey/
 qdrant_storage/
 .vscode
