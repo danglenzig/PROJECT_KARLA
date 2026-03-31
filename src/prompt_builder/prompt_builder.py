@@ -48,6 +48,9 @@ TODO: system prompt
 """
 
 def build_narrative_agent_system_prompt(schema: str) ->str:
+
+    # TODO: move CoT reasoning to /src/narrative_agent/narrative_graph.py
+
     return f"""You are an expert narrative design AI assistant helping design short visual novel stories.
 
 You operate as a small state machine using the following STEP types:

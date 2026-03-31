@@ -46,5 +46,7 @@ class AgentConfig:
         self.max_iterations = _max_iterations
         self.max_tokens = _max_tokens
 
+# TODO: add LangGraph state schema here once we migrate narrative_agent.py to use LangGraph
+
 def dm_foo():
     print("\n\ndm_bar\n\n")
