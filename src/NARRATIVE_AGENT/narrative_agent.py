@@ -10,6 +10,7 @@ narrative_agent_old.py and is kept for reference.
 """
 
 from pathlib import Path
+import json
 import sys
 
 # PROJECT_KARLA/src/
@@ -17,10 +18,8 @@ SRC_ROOT = Path(__file__).parent.parent  # src/TESTING -> src
 
 NARRATIVE_AGENT_PATH = SRC_ROOT / "NARRATIVE_AGENT"
 sys.path.insert(0, str(NARRATIVE_AGENT_PATH))
-from narrative_graph import get_story_plan, ng_foo
+from narrative_graph import get_story_plan
 
-
-print(ng_foo()) # Output: "ng BAR" if the import is successful
-
-plan = get_story_plan("Write a short visual novel story about a talking dog who solves mysteries.")
-print(plan.title) # Expected to error until the graph is fully implemented, but confirms the function is callable.
+plan = get_story_plan("Write a short visual novel story about a haunted library.")
+plan_json_str = json.dumps(plan.__dict__, indent=2)
+print(f"\n\n{plan_json_str}")

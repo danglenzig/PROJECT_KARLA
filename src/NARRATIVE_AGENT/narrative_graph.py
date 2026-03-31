@@ -42,7 +42,8 @@ load_dotenv()
 
 AGENT_CONFIG = AgentConfig(
     "narrative_agent",
-    "gpt-4.1",
+    #"gpt-4.1",
+    "gpt-4.1-mini",
     "http://localhost:6333",
     20, 4000
 )
@@ -115,11 +116,75 @@ class NarrativeGraph:
                 ]
             }
         
-        workflow.add_node("classify_genre", classify_genre)
+        # Node 2: Research the genre using tools
+        def research_genre(state: GraphState) -> GraphState:
+            """Call both how-to and examples tools for the classified genre."""
+            genre = state["genre"]
+            
+            # call tools
+            howto_result = search_genre_howto(genre, state["user_prompt"])
+            examples_result = search_genre_examples(genre, state["user_prompt"])
 
-        # START -> classify_genre -> END (for now, will add more nodes later)
+            research = f"""
+            HOWTO RESULT:
+            {howto_result}:
+            EXAMPLES RESULT:
+            {examples_result}
+            """
+
+            return {
+                "research": research,
+                "messages": [
+                    {
+                        "role": "assistant",
+                        "content": f"Used tools to research genre {genre}: howto and examples retrieved."
+                    }
+                ]
+            }
+        
+        # Node 3 Draft the story plan based on the research and user prompt
+        def  draft_story_plan(state: GraphState) -> GraphState:
+            """Draft the story plan based on the research and user prompt."""
+            from openai import OpenAI
+            client = OpenAI()
+
+            prompt = build_system_prompt("draft_story", state["genre"], state["research"], state["user_prompt"])
+
+            response = client.chat.completions.create(
+                model= self.config.openai_model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature = 0.7,
+                max_tokens = self.config.max_tokens
+            )
+
+            story_json = response.choices[0].message.content.strip()
+            return {
+                "story_plan": story_json,
+                "messages": [
+                    {
+                        "role": "assistant",
+                        "content": f"Drafted story plan based on research and user prompt."
+                    }
+                ]
+            }
+
+
+
+        workflow.add_node("classify_genre", classify_genre)
+        workflow.add_node("research_genre", research_genre)
+        workflow.add_node("draft_story_plan", draft_story_plan)
+
+
+        # START -> classify_genre -> research_genre -> draft_story_plan -> END
         workflow.set_entry_point("classify_genre")
-        workflow.add_edge("classify_genre", END)
+        workflow.add_edge("classify_genre", "research_genre")
+        workflow.add_edge("research_genre", "draft_story_plan")
+        workflow.add_edge("draft_story_plan", END)
 
         return workflow
 
@@ -146,11 +211,8 @@ class NarrativeGraph:
                 print(f"{k}: {v}")
         print("==========================")
 
-
-
-
         model_data = validate_story_plan(raw_plan)
-        return StoryPlan(**model_data) # NOTE: ** unpacks the dict into keyword args for the StoryPlan constructor
+        return StoryPlan(**model_data) # NOTE to self: **double_asterisk unpacks the dict into keyword args for the StoryPlan constructor
     
 # Entry point for testing
 def get_story_plan(user_prompt: str) -> StoryPlan:
@@ -162,4 +224,4 @@ def ng_foo():
 
 if __name__ == "__main__":
     print("Narrative Graph skeleton ready!")
-    print("Test with: get_story_plan('Write a short visual novel story about a haunted library.')")
+    print("Test with: get_story_plan('Write a short visual novel story about a cursed nursing home.')")

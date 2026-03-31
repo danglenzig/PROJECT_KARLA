@@ -2,7 +2,7 @@
 
 from dataclasses import field
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 import sys
 
 
@@ -16,12 +16,10 @@ from utility_functions import load_schema
 
 
 
-#schemas_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent.parent / "SCHEMAS") # relative location of the SCHEMAS folder
 schemas_dir = SRC_ROOT.parent / "SCHEMAS"
 schema_paths_dict: Dict[str, Path] = {
-    "narrative_agent": schemas_dir / "narrative_spec.json",
-    "build_agent": schemas_dir / "build_spec.json",
-    #"dialogue_agent": schemas_dir / "dialogue_spec.json"
+    "draft_story": schemas_dir / "narrative_spec.json",
+    #"dialogue_agent": schemas_dir / "dialogue_spec.json" TODO
 }
 
 def get_schema(schema_name: str) -> str:
@@ -30,144 +28,61 @@ def get_schema(schema_name: str) -> str:
     s_path = schema_paths_dict[schema_name]
     return load_schema(s_path)
 
-    
-    
-
-
 def prompt_builder_foo():
     return("\n\nprompt_builder_bar\n\n")
 
-def build_dialogue_agent_system_prompt(schema: str) -> str:
+def build_dialogue_agent_system_prompt(schema: str, genre: str, research: str, user_prompt: str) -> str:
     return f"""
 TODO: system prompt
 """
 
-def build_build_agent_system_prompt(schema: str) -> str:
+def build_draft_story_prompt(schema: str, genre: str, research: str, user_prompt: str) -> str:
+    """Simplified prompt for drafting the story plan"""
     return f"""
-TODO: system prompt
-"""
+GENRE: {genre}
 
-def build_narrative_agent_system_prompt(schema: str) ->str:
+USER PROMPT: {user_prompt}
 
-    # TODO: move CoT reasoning to /src/narrative_agent/narrative_graph.py
+RESEARCH CONTEXT: {research}
 
-    return f"""You are an expert narrative design AI assistant helping design short visual novel stories.
+TASK: Generate complete StoryPlan JSON for a short visual novel based on the above user prompt, genre, and research context.
 
-You operate as a small state machine using the following STEP types:
-- START
-- CONTEXTUALIZE
-- PLAN
-- TOOL
-- OBSERVE
-- OUTPUT
+Output ONLY valid JSON matching this schema:
+{schema}
 
-## ReasoningStep Schema Example
-{{
-  "step": "TOOL",
-  "content": null,
-  "tool": "search_genre_howto", 
-  "tool_input": '{{"genre_name": "romance", "search_query": "slow-burn"}}',
-  "tool_output": null
-}}
+Use the research context as needed for genre-specific howto advice and examples. Follow a three-act structure with 2-4 scenes per act.
 
-### High-level behavior
+Each scene MAY include a dialogue choice with 2 outcomes, but this is not required. If there are no choices, then the value of that scene's "choice" item MUST be "NONE", and the value of the "outcomes" item MUST be an empty list [].
 
-1. START
-   - Restate the user input in your own words in `content`.
-   - Do NOT call tools in this step.
+Provide detailed visual descriptions of all characters -- these descriptions will be used as image generation prompts by another agent whose output will be used as dialogue portraits in the visual novel.
 
-2. CONTEXTUALIZE
-   - Briefly explain what kind of visual novel story is being requested.
-   - Identify the **primary genre**. It MUST be one of:
-     - "romance"
-     - "mystery"
-     - "horror"
-   - Put the chosen genre name as a lowercase string into `content`, e.g. "romance".
-   - Do NOT call tools in this step.
+Provide detailed visual descriptions of all scene environments -- these descriptions will be used as image generation prompts by another agent whose output will be used as backgrounds in the visual novel.
 
-3. PLAN
-   - Describe, in `content`, what you intend to do next (e.g. "Call howto + examples tools to gather genre context, then draft a Story Plan").
-   - A PLAN step MAY request a TOOL call, or may just refine the plan.
-   - If you intend to call a tool, emit a TOOL step in the NEXT turn, not in the same one.
-
-4. TOOL
-   - Use only the following tools:
-
-     - search_genre_howto(genre_name: str, search_query: str)
-     - search_genre_examples(genre_name: str, search_query: str)
-
-   - `tool` MUST be exactly "search_genre_howto" or "search_genre_examples".
-   - `tool_input` MUST be a JSON string of the form:
-     - {{"genre_name": "romance" | "mystery" | "horror", "search_query": "<short natural language query>"}}
-
-     Example:
-     {{"genre_name": "romance", "search_query": "first kiss scene structure"}}
-
-   - In a TOOL step:
-     - `content` MUST be null.
-     - `tool_output` MUST be null (the caller will fill it later).
-     - `tool_input` MUST be a single JSON object string. Never use multiple braces, never use sets, arrays, or other formats.
-
-5. OBSERVE
-   - The caller will execute the tool and pass the raw text result back to you.
-   - In an OBSERVE step:
-     - Copy the tool name into `tool`.
-     - Copy the same JSON string you used in `tool_input`.
-     - Put the raw tool result into `tool_output`.
-     - In `content`, briefly summarize what you learned from the tool output for the current story.
-
-6. OUTPUT
-   - This is the final result that will be sent to the schematizer.
-   - In the OUTPUT step, `content` MUST be a JSON string describing a **Story Plan** the schematizer can work from.
-
-   The Story Plan JSON MUST have the shape of the following OUTPUT schema (all keys required)
-
-   OUTPUT Schema:
-   {schema}
-
-   - The OUTPUT step must NOT call tools.
-   - Do not include any explanatory text outside this JSON in the OUTPUT `content`.
-   - The schematizer will take this JSON and expand it into a full VN spec.
-
-### General rules
-
-- Always consult both the howto and examples tools before drafting your story plan.
-- Always emit syntactically valid JSON for the ReasoningStep wrapper.
-- Never mix multiple steps in one response.
-- Never invent genre names outside: "romance", "mystery", "horror".
-- Use tools for genre writing advice or stylistic examples.
-- Use a three-act story structure.
-- Each MUST consist of at least 2, and at most 4 scenes.
-- Indicate which character is the main point-of-view character of the story. This will be the player character of the visual novel.
-- Include detailed visual descriptions of all characters -- face, body, and clothing. These details will be used later as image generation prompts by another agent.
-- Include detailed visual descriptions of all scene environments -- location, colors, lighting, etc. These details will be used later as image generation prompts by another agent.
-- Include samples of narration, dialogue and/or monologue for each scene. These samples will be used later as example prompts for a dialogue generation agent.
+Generate samples of narration, dialogue and/or monologue for each scene -- these samples will be used as example prompts for a dialogue generation agent.
 
 IMPORTANT:
-JSON structure (keys and string delimiters) must use standard double quotes ".
-Inside all string values, use only single quotes ' for any quoted text (e.g. dialogue, character names, or emphasis).
-Do not escape single quotes.
-Do not use double quotes inside any values — if needed, replace them with single quotes.
+JSON structure (keys and string delimiters) MUST use standard double quotes ".
+Inside all string values, use ONLY single quotes ' for any quoted text
+DO NOT escape single quotes.
+DO NOT use double quotes inside any values — if needed, replace them with single quotes.
 """
 
-
-
-
-
 builder_dict = {
-    "narrative_agent": build_narrative_agent_system_prompt,
     "dialogue_agent": build_dialogue_agent_system_prompt,
-    "build_agent": build_build_agent_system_prompt
+    "draft_story": build_draft_story_prompt
 }
 
-def build_system_prompt(agent_name: str) -> str:
+def build_system_prompt(
+        agent_name: str,
+        genre: Optional[str] = None,
+        research: Optional[str] = None,
+        user_prompt: Optional[str] = None
+) -> str:
     if not agent_name in list(builder_dict.keys()):
-        raise ValueError(f"Unknown agent name: {agent_name}")
+        raise ValueError(f"Unknown agent name (functions): {agent_name}")
     if not agent_name in list(schema_paths_dict.keys()):
-        raise ValueError(f"Unknown agent name: {agent_name}")
+        raise ValueError(f"Unknown agent name (schemas) : {agent_name}")
     schema: str = get_schema(agent_name)
     
     fn = builder_dict[agent_name]
-    return fn(schema)
-
-#print("foo")
+    return fn(schema, genre, research, user_prompt)
