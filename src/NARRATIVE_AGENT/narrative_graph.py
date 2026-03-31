@@ -8,7 +8,7 @@ user prompts into structured StoryPlan JSON.
 import sys
 import json
 from pathlib import Path
-from typing import TypedDict, Annotated, Sequence, Optional
+from typing import TypedDict, Annotated, Sequence, Optional, Literal
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from pydantic import BaseModel
@@ -47,7 +47,8 @@ AGENT_CONFIG = AgentConfig(
     "http://localhost:6333",
     20, 4000
 )
-
+MAX_RETRIES = 3
+SMARTER_MODEL = "gpt-4.1"
 # =============================================================================
 # GRAPH STATE
 # =============================================================================
@@ -60,6 +61,8 @@ class GraphState(TypedDict):
     research: str # tool results
     story_plan: str # raw JSON
     validation_errors: list[str] # if validation fails, store errors here
+    retry_count: int
+    model_used: str
 
 # =============================================================================
 # NARRATIVE GRAPH
@@ -113,7 +116,8 @@ class NarrativeGraph:
                         "role": "assistant",
                         "content": f"Classified genre as {genre}."
                     }
-                ]
+                ],
+                "retry_count": 0
             }
         
         # Node 2: Research the genre using tools
@@ -145,13 +149,19 @@ class NarrativeGraph:
         # Node 3 Draft the story plan based on the research and user prompt
         def  draft_story_plan(state: GraphState) -> GraphState:
             """Draft the story plan based on the research and user prompt."""
+
+            llm_model = self.config.openai_model
+            if state["retry_count"] > 0:
+                llm_model = SMARTER_MODEL # switch to smarter model for retries, if configured
+                print(f"Retrying story plan drafting with smarter model {SMARTER_MODEL} due to validation failure.")
+
             from openai import OpenAI
             client = OpenAI()
 
             prompt = build_system_prompt("draft_story", state["genre"], state["research"], state["user_prompt"])
 
             response = client.chat.completions.create(
-                model= self.config.openai_model,
+                model= llm_model,
                 messages=[
                     {
                         "role": "user",
@@ -170,21 +180,40 @@ class NarrativeGraph:
                         "role": "assistant",
                         "content": f"Drafted story plan based on research and user prompt."
                     }
-                ]
+                ],
+                "model_used": llm_model,
+                "retry_count": state["retry_count"] + 1 # increment retry count for validation routing logic
             }
+        
+        # Node 4: Exit node
+        def exit_node(state: GraphState) -> GraphState:
+            """Exit node - does nothing, just a placeholder for graph structure."""
+            return state
 
-
+        # Validation Node
+        def validation_routing(state: GraphState) -> Literal["exit_node", "draft_story_plan"]:
+            """Route to END if validation passes, otherwise loop back to story plan drafting."""
+            raw_plan = state["story_plan"]
+            if validate_story_plan(raw_plan)["title"] != "INVALID":
+                return "exit_node"
+            elif state["retry_count"] >= MAX_RETRIES:
+                return "exit_node" # if max retries hit, deal with it downstream
+            else:
+                return "draft_story_plan"
 
         workflow.add_node("classify_genre", classify_genre)
         workflow.add_node("research_genre", research_genre)
         workflow.add_node("draft_story_plan", draft_story_plan)
+        workflow.add_node("exit_node", exit_node)
 
 
         # START -> classify_genre -> research_genre -> draft_story_plan -> END
         workflow.set_entry_point("classify_genre")
         workflow.add_edge("classify_genre", "research_genre")
         workflow.add_edge("research_genre", "draft_story_plan")
-        workflow.add_edge("draft_story_plan", END)
+        workflow.add_edge("exit_node", END)
+
+        workflow.add_conditional_edges("draft_story_plan", validation_routing)
 
         return workflow
 
